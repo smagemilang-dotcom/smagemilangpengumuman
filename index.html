@@ -129,8 +129,6 @@
     const students = [
      { nisn: "0081377376", nama: "Ade Wiragunawan", tgl_lahir: "2008-02-06", status: "lulus" },
   { nisn: "0081055219", nama: "Afifah Adawiyah Shadad", tgl_lahir: "2008-02-17", status: "lulus" },
-  { nisn: "0075419666", nama: "AFRIANDI", tgl_lahir: "2007-10-27", status: "verifikasi" },
-  { nisn: "0065867982", nama: "Ahmad Zaki", tgl_lahir: "2006-12-26", status: "verifikasi" },
   { nisn: "0077142638", nama: "Aina Al Mardiah", tgl_lahir: "2007-12-06", status: "lulus" },
   { nisn: "0088876465", nama: "Aisyah.R.HA", tgl_lahir: "2008-05-08", status: "lulus" },
   { nisn: "0086983786", nama: "ALHAFIS", tgl_lahir: "2008-08-25", status: "lulus" },
@@ -201,7 +199,6 @@
   { nisn: "0083538884", nama: "MALISA", tgl_lahir: "2008-08-01", status: "lulus" },
   { nisn: "0086220356", nama: "MARSYA SAUQI", tgl_lahir: "2008-05-26", status: "lulus" },
   { nisn: "0087616973", nama: "MARSYA SESSICA", tgl_lahir: "2008-08-07", status: "Tidak Lulus" },
-  { nisn: "0079738138", nama: "MASDINUR", tgl_lahir: "2007-10-14", status: "verifikasi" },
   { nisn: "0074100122", nama: "Mawar Nabila KS", tgl_lahir: "2007-04-17", status: "lulus" },
   { nisn: "0081395982", nama: "Maysaroh Khairunnisah", tgl_lahir: "2008-06-07", status: "lulus" },
   { nisn: "0089738705", nama: "MERSELYA PUTRI", tgl_lahir: "2008-03-24", status: "lulus" },
@@ -231,7 +228,6 @@
   { nisn: "0081688354", nama: "Rahma Nurlatifa", tgl_lahir: "2008-05-02", status: "lulus" },
   { nisn: "0085653059", nama: "RAHMAH WAHYU ANDINI", tgl_lahir: "2008-08-22", status: "lulus" },
   { nisn: "0085614082", nama: "RAHMATUL FAJRI", tgl_lahir: "2008-09-17", status: "lulus" },
-  { nisn: "0079146077", nama: "RAMA HIDAYAT", tgl_lahir: "2007-09-03", status: "verifikasi" },
   { nisn: "0086408796", nama: "RANDA FAUZAN", tgl_lahir: "2008-01-08", status: "lulus" },
   { nisn: "0085959421", nama: "RASTI ANGRAINI", tgl_lahir: "2008-05-24", status: "lulus" },
   { nisn: "0081427177", nama: "RAUDATUL JANNAH", tgl_lahir: "2008-12-28", status: "lulus" },
@@ -271,7 +267,6 @@
   { nisn: "0078930898", nama: "YUDISTIRA RAMADHAN", tgl_lahir: "2007-10-04", status: "lulus" },
   { nisn: "0081948767", nama: "YUGA ADINATA", tgl_lahir: "2008-01-13", status: "lulus" },
   { nisn: "0078598660", nama: "Yunita Prastiwi", tgl_lahir: "2006-06-06", status: "lulus" },
-  { nisn: "0088699055", nama: "ZAKI RAMADHAN", tgl_lahir: "2008-09-28", status: "verifikasi" },
   { nisn: "0083162277", nama: "ZAKI SA'BANI", tgl_lahir: "2008-07-31", status: "lulus" },
   { nisn: "0074926812", nama: "ZAMHIR", tgl_lahir: "2007-12-05", status: "lulus" },
   { nisn: "0081304854", nama: "ZASKIA OKTAFIA", tgl_lahir: "2008-10-03", status: "lulus" },
@@ -333,7 +328,7 @@
           iconEl.innerHTML = '<i data-lucide="award" class="w-6 h-6 text-green-500"></i>';
           statusEl.textContent = "LULUS";
           statusEl.className = "inline-block px-6 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700 border border-green-200";
-          msgEl.textContent = "Selamat! Anda dinyatakan LULUS.";
+          msgEl.textContent = "Selamat! Ananda dinyatakan LULUS.";
           spawnConfetti();
         } else if (student.status === "verifikasi") {
           iconEl.innerHTML = '<i data-lucide="clock" class="w-6 h-6 text-blue-500"></i>';
@@ -351,7 +346,7 @@
           iconEl.innerHTML = '<i data-lucide="x-circle" class="w-6 h-6 text-red-500"></i>';
           statusEl.textContent = "TIDAK LULUS";
           statusEl.className = "inline-block px-6 py-2 rounded-full text-sm font-bold bg-red-100 text-red-700 border border-red-200";
-          msgEl.textContent = "Tidak Mengikuti KBM dan Tidak mengikuti ujian, .";
+          msgEl.textContent = "Silahkan Hubungi Wali Kelas, .";
         }
         lucide.createIcons();
       }, 300);
