@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cek Kelulusan - SMA Negeri 1 Bunut</title>
+  
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; }
+    html, body { height: 100vh; width: 100vw; margin: 0; padding: 0; overflow-x: hidden; }
+    
+    .glass { 
+      background: rgba(255,255,255,0.95); 
+      backdrop-filter: blur(20px); 
+      -webkit-backdrop-filter: blur(20px);
+    }
+    
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeDown { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-20px); } }
+    @keyframes confetti { 0% { transform: translateY(0) rotate(0deg); opacity:1; } 100% { transform: translateY(-250px) rotate(720deg); opacity:0; } }
+    @keyframes scaleIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+    
+    .fade-up { animation: fadeUp 0.6s ease-out forwards; }
+    .fade-out { animation: fadeDown 0.4s ease-in forwards; }
+    .scale-in { animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    .confetti-piece { position:absolute; width:8px; height:8px; border-radius:2px; animation: confetti 1.5s ease forwards; }
+    
+    input, button { transition: all 0.3s ease; }
+    input:focus { outline: none; ring: 2px solid #0284c7; }
+    
+    /* FIXED: Input height sama PERSIS di HP */
+    input[type="text"], 
+    input[type="date"] { 
+      height: 48px !important; 
+      padding: 0 12px !important; 
+      font-size: 16px !important; 
+    }
+    
+    /* HP: Date input fix */
+    @media (max-width: 640px) {
+      input[type="date"] {
+        font-size: 16px !important;
+        padding: 0 12px 1px 12px !important;
+        background: white;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 0.7;
+        cursor: pointer;
+      }
+    }
+    
+    /* iOS Safari date fix */
+    @supports (-webkit-touch-callout: none) {
+      input[type="date"] {
+        padding: 12px !important;
+        font-size: 16px !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-sky-50 to-emerald-50 min-h-screen flex items-center justify-center p-4">
+  
+  <div id="app" class="w-full max-w-md">
+    
+    <!-- Header Simetris -->
+    <div class="text-center mb-8 fade-up">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-sky-100 border-4 border-sky-200 flex items-center justify-center">
+        <i data-lucide="graduation-cap" class="w-8 h-8 text-sky-600"></i>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-black text-sky-900 mb-2">SMA NEGERI 1 BUNUT</h1>
+      <p class="text-lg font-semibold text-sky-700 mb-1">Pengumuman Kelulusan Pukul 22.00 WIB </p>
+      <p class="text-sm text-sky-500">Tahun Ajaran 2025/2026</p>
+    </div>
+
+    <!-- Form Card Ramping -->
+    <div id="form-card" class="glass rounded-2xl shadow-xl border border-sky-100 p-8 fade-up" style="animation-delay:0.2s;">
+      <h2 class="text-xl font-bold text-sky-900 mb-1 text-center">Cek Kelulusan</h2>
+      <p class="text-sm text-sky-600 mb-8 text-center">Masukkan NISN dan tanggal lahir</p>
+      
+      <form id="check-form" class="space-y-5">
+        <div>
+          <label for="nisn" class="block text-sm font-semibold text-sky-800 mb-2">NISN</label>
+          <input id="nisn" type="text" inputmode="numeric" maxlength="10" placeholder="10 digit NISN" required 
+                 class="w-full rounded-xl border-2 border-sky-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-200/50 text-sm bg-white">
+        </div>
+        
+        <div>
+          <label for="tgl-lahir" class="block text-sm font-semibold text-sky-800 mb-2">Tanggal Lahir</label>
+          <input id="tgl-lahir" type="date" required 
+                 class="w-full rounded-xl border-2 border-sky-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-200/50 text-sm bg-white">
+        </div>
+        
+        <button type="submit" id="submit-btn" 
+                class="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-200 transition-all h-12">
+          <i data-lucide="search" class="w-5 h-5"></i>
+          <span>Cek Kelulusan</span>
+        </button>
+      </form>
+      
+      <p id="error-msg" class="hidden mt-5 p-3 rounded-xl text-sm text-red-500 text-center font-medium bg-red-50 border border-red-200"></p>
+    </div>
+
+    <!-- Result Card Ramping -->
+    <div id="result-card" class="hidden glass rounded-2xl shadow-xl border border-sky-100 p-8 text-center relative overflow-hidden mt-6 fade-up">
+      <div id="confetti-container" class="absolute inset-0 pointer-events-none"></div>
+      <div id="result-icon" class="mx-auto mb-4 w-12 h-12 rounded-xl bg-white/50 backdrop-blur flex items-center justify-center shadow-lg border border-white/30"></div>
+      
+      <h3 id="result-name" class="text-xl font-bold text-sky-900 mb-1"></h3>
+      <p id="result-nisn-display" class="text-sm text-sky-500 mb-4"></p>
+      
+      <div id="result-status" class="inline-block px-6 py-2 rounded-full text-sm font-bold mb-4 mx-auto"></div>
+      <p id="result-message" class="text-sm text-sky-700 mb-6 leading-relaxed"></p>
+      
+      <button id="back-btn" class="px-6 py-2 rounded-xl border-2 border-sky-200 text-sky-700 font-semibold hover:bg-sky-50 transition-all text-sm h-10 flex items-center justify-center mx-auto">
+        <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>
+        Kembali
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const students = [
+     { nisn: "0081377376", nama: "Ade Wiragunawan", tgl_lahir: "2008-02-06", status: "lulus" },
+  { nisn: "0081055219", nama: "Afifah Adawiyah Shadad", tgl_lahir: "2008-02-17", status: "lulus" },
+  { nisn: "0075419666", nama: "AFRIANDI", tgl_lahir: "2007-10-27", status: "verifikasi" },
+  { nisn: "0065867982", nama: "Ahmad Zaki", tgl_lahir: "2006-12-26", status: "verifikasi" },
+  { nisn: "0077142638", nama: "Aina Al Mardiah", tgl_lahir: "2007-12-06", status: "lulus" },
+  { nisn: "0088876465", nama: "Aisyah.R.HA", tgl_lahir: "2008-05-08", status: "lulus" },
+  { nisn: "0086983786", nama: "ALHAFIS", tgl_lahir: "2008-08-25", status: "lulus" },
+  { nisn: "0074574758", nama: "Ali Darma Hulu", tgl_lahir: "2007-12-20", status: "lulus" },
+  { nisn: "0081613871", nama: "Alif Ardiansyah", tgl_lahir: "2008-12-01", status: "lulus" },
+  { nisn: "0084246033", nama: "Alimul Ihsan", tgl_lahir: "2008-03-29", status: "lulus" },
+  { nisn: "0088389677", nama: "AMELDA MUSVIRA", tgl_lahir: "2008-08-20", status: "lulus" },
+  { nisn: "0073032882", nama: "AMELIA SAPUTRI", tgl_lahir: "2009-03-10", status: "lulus" },
+  { nisn: "0081944518", nama: "ANGGA SADTRIAWAN", tgl_lahir: "2008-11-10", status: "lulus" },
+  { nisn: "0074640087", nama: "Anisa Safitri", tgl_lahir: "2007-11-04", status: "lulus" },
+  { nisn: "0064248678", nama: "AUTOBER", tgl_lahir: "2006-10-21", status: "lulus" },
+  { nisn: "0096329145", nama: "Awit Putra Hutama", tgl_lahir: "2009-03-31", status: "lulus" },
+  { nisn: "0084976400", nama: "BASTIAN HANAN", tgl_lahir: "2008-04-10", status: "lulus" },
+  { nisn: "0077757250", nama: "BAYU ANGGARA", tgl_lahir: "2007-11-16", status: "lulus" },
+  { nisn: "0083832881", nama: "BELLA SAFITRI", tgl_lahir: "2008-08-06", status: "lulus" },
+  { nisn: "0051904048", nama: "CITRA SUSANTI", tgl_lahir: "2005-11-30", status: "lulus" },
+  { nisn: "0077344880", nama: "CYREN YUMA PUTRI", tgl_lahir: "2008-12-24", status: "lulus" },
+  { nisn: "0087515087", nama: "DAYU ANGGRAINI", tgl_lahir: "2009-01-21", status: "lulus" },
+  { nisn: "0086489455", nama: "DEBY AKBAR", tgl_lahir: "2008-07-24", status: "lulus" },
+  { nisn: "0076035441", nama: "Deka Delatul Faza", tgl_lahir: "2008-08-15", status: "lulus" },
+  { nisn: "0082805772", nama: "Della miftara", tgl_lahir: "2008-03-21", status: "lulus" },
+  { nisn: "0085651042", nama: "Dian Putri Cahyani", tgl_lahir: "2008-06-16", status: "lulus" },
+  { nisn: "0077041455", nama: "Dika Andrea Putra Setiawan", tgl_lahir: "2007-12-30", status: "lulus" },
+  { nisn: "0083154424", nama: "DIKE OKTAVIANI ZALUKHU", tgl_lahir: "2008-10-15", status: "lulus" },
+  { nisn: "0081186090", nama: "DZAKI ZULHANNAN", tgl_lahir: "2008-06-17", status: "lulus" },
+  { nisn: "0059335410", nama: "EKI PERWANDI", tgl_lahir: "2005-10-12", status: "lulus" },
+  { nisn: "0085502498", nama: "Enjelina Harefa", tgl_lahir: "2007-03-25", status: "lulus" },
+  { nisn: "0073240359", nama: "Erlin Estianti", tgl_lahir: "2007-12-29", status: "lulus" },
+  { nisn: "0085615594", nama: "FACHRY RAMADHAN", tgl_lahir: "2008-09-04", status: "lulus" },
+  { nisn: "0086565572", nama: "FADILA WATI", tgl_lahir: "2008-06-29", status: "lulus" },
+  { nisn: "0088491923", nama: "FAHIRA SAKA", tgl_lahir: "2009-07-31", status: "lulus" },
+  { nisn: "0088254110", nama: "Fani Sutra Sukma", tgl_lahir: "2008-06-26", status: "lulus" },
+  { nisn: "0077491760", nama: "Fauzi", tgl_lahir: "2008-06-08", status: "lulus" },
+  { nisn: "0082987870", nama: "FEBI RANATA", tgl_lahir: "2008-02-29", status: "lulus" },
+  { nisn: "0077480152", nama: "Febri Kurnia Wati", tgl_lahir: "2009-02-24", status: "lulus" },
+  { nisn: "0083561837", nama: "Febryanti", tgl_lahir: "2008-07-07", status: "lulus" },
+  { nisn: "0082277985", nama: "Fiky Sukrendi", tgl_lahir: "2008-01-27", status: "Tidak lulus" },
+  { nisn: "0076355028", nama: "FILEMON WARUWU", tgl_lahir: "2007-09-20", status: "lulus" },
+  { nisn: "0076978745", nama: "Firman Jaya Laia", tgl_lahir: "2007-12-10", status: "lulus" },
+  { nisn: "0082521547", nama: "FITRI ZEIN", tgl_lahir: "2008-10-11", status: "lulus" },
+  { nisn: "0078981613", nama: "GIO FANI", tgl_lahir: "2007-11-18", status: "lulus" },
+  { nisn: "0084062787", nama: "GUSTIANO PRATAMA", tgl_lahir: "2008-07-01", status: "lulus" },
+  { nisn: "0085977917", nama: "HAFIZZUDDIN KHOIRI", tgl_lahir: "2008-08-16", status: "lulus" },
+  { nisn: "0073059758", nama: "HAIKAL SUTIAWAN", tgl_lahir: "2007-09-27", status: "lulus" },
+  { nisn: "0074608404", nama: "HENGKI ZOL MAWAN", tgl_lahir: "2007-10-06", status: "lulus" },
+  { nisn: "0085680861", nama: "Herra Daratu Zara", tgl_lahir: "2008-12-07", status: "lulus" },
+  { nisn: "0082561434", nama: "IKA MULYANA", tgl_lahir: "2008-02-02", status: "lulus" },
+  { nisn: "0072380170", nama: "IKA MUTIA", tgl_lahir: "2008-06-26", status: "lulus" },
+  { nisn: "0085173852", nama: "IMELGA HESTY", tgl_lahir: "2008-07-17", status: "lulus" },
+  { nisn: "0081531880", nama: "INTAN DESTI PUTRI", tgl_lahir: "2008-09-16", status: "lulus" },
+  { nisn: "0086128046", nama: "JELIN ALMIA", tgl_lahir: "2008-11-13", status: "lulus" },
+  { nisn: "0073713073", nama: "JULITA SAFITRI", tgl_lahir: "2007-07-27", status: "lulus" },
+  { nisn: "0084556584", nama: "Kalvin Nduru", tgl_lahir: "2008-06-12", status: "lulus" },
+  { nisn: "3086004745", nama: "KHESYA ALYA PUTRI", tgl_lahir: "2008-07-23", status: "lulus" },
+  { nisn: "0084602864", nama: "Khoiril Asri", tgl_lahir: "2008-03-20", status: "lulus" },
+  { nisn: "0085769858", nama: "KIRISTIANI LASE", tgl_lahir: "2008-10-30", status: "lulus" },
+  { nisn: "0071616030", nama: "KURNIAWAN HABIBI", tgl_lahir: "2007-06-30", status: "lulus" },
+  { nisn: "0087969531", nama: "LAILATUSSYIFA", tgl_lahir: "2008-07-13", status: "lulus" },
+  { nisn: "0082535935", nama: "LIDYA ANZA TAMARA", tgl_lahir: "2008-09-25", status: "lulus" },
+  { nisn: "0089798843", nama: "LIN FITRI", tgl_lahir: "2008-08-07", status: "lulus" },
+  { nisn: "0078765378", nama: "LUDHFI HAZBILLAH", tgl_lahir: "2007-10-05", status: "lulus" },
+  { nisn: "0078086081", nama: "M. Bintang Kurniawan", tgl_lahir: "2007-11-10", status: "lulus" },
+  { nisn: "0085216534", nama: "M. SIDDIQ KHUSAINI", tgl_lahir: "2008-11-16", status: "lulus" },
+  { nisn: "0073377324", nama: "M.Aryaguna Dwi Putra", tgl_lahir: "2007-09-05", status: "lulus" },
+  { nisn: "0071991757", nama: "M. ZUL AZMI", tgl_lahir: "2009-12-21", status: "lulus" },
+  { nisn: "0077836893", nama: "MAGHFIRATUL HIDAYAH", tgl_lahir: "2007-11-29", status: "lulus" },
+  { nisn: "0083344066", nama: "Mai Zahrah", tgl_lahir: "2008-05-25", status: "lulus" },
+  { nisn: "0083538884", nama: "MALISA", tgl_lahir: "2008-08-01", status: "lulus" },
+  { nisn: "0086220356", nama: "MARSYA SAUQI", tgl_lahir: "2008-05-26", status: "lulus" },
+  { nisn: "0087616973", nama: "MARSYA SESSICA", tgl_lahir: "2008-08-07", status: "verifikasi" },
+  { nisn: "0079738138", nama: "MASDINUR", tgl_lahir: "2007-10-14", status: "verifikasi" },
+  { nisn: "0074100122", nama: "Mawar Nabila KS", tgl_lahir: "2007-04-17", status: "lulus" },
+  { nisn: "0081395982", nama: "Maysaroh Khairunnisah", tgl_lahir: "2008-06-07", status: "lulus" },
+  { nisn: "0089738705", nama: "MERSELYA PUTRI", tgl_lahir: "2008-03-24", status: "lulus" },
+  { nisn: "0083929271", nama: "MUHAMAD FAUZAN", tgl_lahir: "2008-02-06", status: "lulus" },
+  { nisn: "0085535603", nama: "MUHAMMAD ARDIANSYAH.S", tgl_lahir: "2008-12-27", status: "lulus" },
+  { nisn: "0083996987", nama: "MUHAMMAD FATHIR AL HADID", tgl_lahir: "2008-10-30", status: "lulus" },
+  { nisn: "0078782221", nama: "MUHAMMAD MARPEL", tgl_lahir: "2008-11-17", status: "lulus" },
+  { nisn: "0075474512", nama: "MUHAMMAD REDHO RIZKI FIRMANSYAH", tgl_lahir: "2007-06-12", status: "lulus" },
+  { nisn: "0087668709", nama: "MUHAMMAD RIZKY MARTHSYUR", tgl_lahir: "2008-03-05", status: "lulus" },
+  { nisn: "0085768567", nama: "MURKHOLIS ALFAJAR", tgl_lahir: "2008-05-03", status: "lulus" },
+  { nisn: "0062126144", nama: "MURNI JAYA ZENDRATO", tgl_lahir: "2006-12-04", status: "lulus" },
+  { nisn: "0088556735", nama: "MUZI ABDURAHMAN", tgl_lahir: "2008-06-27", status: "lulus" },
+  { nisn: "0085872928", nama: "NICEYLA PUTRI", tgl_lahir: "2008-03-02", status: "lulus" },
+  { nisn: "0088527514", nama: "Nina Rahayu", tgl_lahir: "2008-07-25", status: "lulus" },
+  { nisn: "0074496678", nama: "Nirmawati Laia", tgl_lahir: "2007-04-06", status: "lulus" },
+  { nisn: "0064081037", nama: "NOVA NIAMAN LASE", tgl_lahir: "2006-11-01", status: "lulus" },
+  { nisn: "0089892534", nama: "NOVAL LEGAWA", tgl_lahir: "2008-11-03", status: "lulus" },
+  { nisn: "0071910775", nama: "Nur Atina Sanggidatur Rofingah", tgl_lahir: "2007-10-09", status: "lulus" },
+  { nisn: "0074391686", nama: "Nur Ayu Agustina", tgl_lahir: "2007-08-28", status: "lulus" },
+  { nisn: "0073899218", nama: "NUR HAMDANI", tgl_lahir: "2007-12-27", status: "lulus" },
+  { nisn: "0073529874", nama: "NURUL ATIFA", tgl_lahir: "2007-08-18", status: "lulus" },
+  { nisn: "0072161314", nama: "NURUL FADDILAH", tgl_lahir: "2007-12-07", status: "lulus" },
+  { nisn: "0079756345", nama: "Pardomuan Rambe", tgl_lahir: "2007-11-27", status: "lulus" },
+  { nisn: "0078524049", nama: "FONI ARMAN HAREFA", tgl_lahir: "2007-12-21", status: "lulus" },
+  { nisn: "0089790169", nama: "Putri jelita Hulu", tgl_lahir: "2008-01-02", status: "lulus" },
+  { nisn: "0083594916", nama: "Rafita", tgl_lahir: "2008-06-17", status: "lulus" },
+  { nisn: "0081688354", nama: "Rahma Nurlatifa", tgl_lahir: "2008-05-02", status: "lulus" },
+  { nisn: "0085653059", nama: "RAHMAH WAHYU ANDINI", tgl_lahir: "2008-08-22", status: "lulus" },
+  { nisn: "0085614082", nama: "RAHMATUL FAJRI", tgl_lahir: "2008-09-17", status: "lulus" },
+  { nisn: "0079146077", nama: "RAMA HIDAYAT", tgl_lahir: "2007-09-03", status: "verifikasi" },
+  { nisn: "0086408796", nama: "RANDA FAUZAN", tgl_lahir: "2008-01-08", status: "lulus" },
+  { nisn: "0085959421", nama: "RASTI ANGRAINI", tgl_lahir: "2008-05-24", status: "lulus" },
+  { nisn: "0081427177", nama: "RAUDATUL JANNAH", tgl_lahir: "2008-12-28", status: "lulus" },
+  { nisn: "0084987292", nama: "Rejois Putri Halawa", tgl_lahir: "2008-07-08", status: "lulus" },
+  { nisn: "0069209414", nama: "Reno Repaldo", tgl_lahir: "2006-12-27", status: "lulus" },
+  { nisn: "0081532449", nama: "RIA MARYANA", tgl_lahir: "2008-04-04", status: "lulus" },
+  { nisn: "0082807695", nama: "Rico Ardiansyah Siregar", tgl_lahir: "2008-07-24", status: "lulus" },
+  { nisn: "0084804206", nama: "RIDO", tgl_lahir: "2008-09-16", status: "lulus" },
+  { nisn: "0085553817", nama: "RIFI SATRYA ATMAZA", tgl_lahir: "2008-01-28", status: "lulus" },
+  { nisn: "0086531712", nama: "RIRIN DWI RIANTI HASIBUAN", tgl_lahir: "2007-07-07", status: "lulus" },
+  { nisn: "0083575909", nama: "RISKA LIDYA FEBRIANI", tgl_lahir: "2008-02-25", status: "lulus" },
+  { nisn: "0087914208", nama: "RISKI RAHMAN", tgl_lahir: "2008-06-21", status: "lulus" },
+  { nisn: "0082056229", nama: "SABDIA MARSELIA", tgl_lahir: "2009-03-05", status: "lulus" },
+  { nisn: "0082316189", nama: "SAFNITA ANGELLERY", tgl_lahir: "2008-01-02", status: "lulus" },
+  { nisn: "0086881686", nama: "Samuel Tri Oktavianus Nduru", tgl_lahir: "2008-10-14", status: "lulus" },
+  { nisn: "0079378346", nama: "SANDI", tgl_lahir: "2007-10-02", status: "lulus" },
+  { nisn: "0075647661", nama: "SAUT", tgl_lahir: "2007-06-01", status: "lulus" },
+  { nisn: "0084283604", nama: "SELFIA", tgl_lahir: "2008-08-18", status: "lulus" },
+  { nisn: "0082958489", nama: "SELLY FEBRIYANI", tgl_lahir: "2008-02-13", status: "lulus" },
+  { nisn: "0089829583", nama: "SELVI AZIE RAHMADANI", tgl_lahir: "2008-09-12", status: "lulus" },
+  { nisn: "0083174899", nama: "Selvi Elviani", tgl_lahir: "2008-05-25", status: "lulus" },
+  { nisn: "0086118582", nama: "SELVI NUR HAISA", tgl_lahir: "2008-11-14", status: "lulus" },
+  { nisn: "0075350513", nama: "Septi Aulida", tgl_lahir: "2007-09-12", status: "lulus" },
+  { nisn: "0067705570", nama: "Septiani Lase", tgl_lahir: "2006-09-16", status: "lulus" },
+  { nisn: "0084409080", nama: "Silvia Agustina Giawa", tgl_lahir: "2008-08-10", status: "lulus" },
+  { nisn: "0079832145", nama: "Siti fatimah", tgl_lahir: "2007-04-01", status: "lulus" },
+  { nisn: "0076030896", nama: "Sri Ramadani", tgl_lahir: "2007-09-13", status: "lulus" },
+  { nisn: "0079957474", nama: "Syela Marsya", tgl_lahir: "2008-04-16", status: "lulus" },
+  { nisn: "0086181846", nama: "SYIFA HUSNUL UMARO", tgl_lahir: "2008-04-08", status: "lulus" },
+  { nisn: "0075706940", nama: "T. WAHYU NISA", tgl_lahir: "2007-12-19", status: "lulus" },
+  { nisn: "0085739234", nama: "TASSAH ALPANI RASINRIA", tgl_lahir: "2008-05-02", status: "lulus" },
+  { nisn: "0077357257", nama: "TERA MARDIANA", tgl_lahir: "2007-01-10", status: "lulus" },
+  { nisn: "0082079699", nama: "TEUKU FADILLAH AKBAR", tgl_lahir: "2008-07-05", status: "lulus" },
+  { nisn: "0083448827", nama: "viona aprilia putri", tgl_lahir: "2008-04-26", status: "lulus" },
+  { nisn: "0072395553", nama: "Wahyu Maulana", tgl_lahir: "2007-12-23", status: "lulus" },
+  { nisn: "0087287440", nama: "Wines Indah Fibri Halawa", tgl_lahir: "2008-02-02", status: "lulus" },
+  { nisn: "0078930898", nama: "YUDISTIRA RAMADHAN", tgl_lahir: "2007-10-04", status: "lulus" },
+  { nisn: "0081948767", nama: "YUGA ADINATA", tgl_lahir: "2008-01-13", status: "lulus" },
+  { nisn: "0078598660", nama: "Yunita Prastiwi", tgl_lahir: "2006-06-06", status: "lulus" },
+  { nisn: "0088699055", nama: "ZAKI RAMADHAN", tgl_lahir: "2008-09-28", status: "verifikasi" },
+  { nisn: "0083162277", nama: "ZAKI SA'BANI", tgl_lahir: "2008-07-31", status: "lulus" },
+  { nisn: "0074926812", nama: "ZAMHIR", tgl_lahir: "2007-12-05", status: "lulus" },
+  { nisn: "0081304854", nama: "ZASKIA OKTAFIA", tgl_lahir: "2008-10-03", status: "lulus" },
+  { nisn: "0086789618", nama: "ZERLINA PRIDASARI", tgl_lahir: "2008-08-06", status: "lulus" },
+  { nisn: "0086210525", nama: "ZIKRINA ISTIGHFARAH", tgl_lahir: "2008-07-03", status: "lulus" },
+  { nisn: "0061298842", nama: "ZUNILA", tgl_lahir: "2006-11-27", status: "lulus" },
+  { nisn: "0078294988", nama: "ZURIYAN", tgl_lahir: "2008-01-09", status: "lulus" },
+  { nisn: "0086724309", nama: "ANUGRAH SEGARIA", tgl_lahir: "2008-05-09", status: "lulus" },
+  { nisn: "0076135396", nama: "BUNGA", tgl_lahir: "2007-08-31", status: "lulus" },
+  { nisn: "0086697703", nama: "MECA RAHMADANI", tgl_lahir: "2008-09-11", status: "lulus" },
+  { nisn: "0092238900", nama: "ZIVANA LATISHA", tgl_lahir: "2009-01-26", status: "lulus" },
+  { nisn: "0078294183", nama: "KHAIRIL UMMAH", tgl_lahir: "2007-03-16", status: "lulus" },
+    ];
+
+    const form = document.getElementById('check-form');
+    const formCard = document.getElementById('form-card');
+    const resultCard = document.getElementById('result-card');
+    const errorMsg = document.getElementById('error-msg');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      errorMsg.classList.add('hidden');
+
+      const nisn = document.getElementById('nisn').value.trim();
+      const tglLahir = document.getElementById('tgl-lahir').value;
+
+      if (nisn.length !== 10) {
+        errorMsg.textContent = "NISN masukkan dengan benar";
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+
+      const student = students.find(s => s.nisn === nisn && s.tgl_lahir === tglLahir);
+      if (!student) {
+        errorMsg.textContent = "Data tidak ditemukan";
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+
+      showResult(student);
+    });
+
+    function showResult(student) {
+      formCard.classList.add('fade-out');
+      setTimeout(() => {
+        formCard.classList.add('hidden');
+        formCard.classList.remove('fade-out');
+        resultCard.classList.remove('hidden');
+        resultCard.classList.add('scale-in');
+
+        document.getElementById('result-name').textContent = student.nama;
+        document.getElementById('result-nisn-display').textContent = `NISN: ${student.nisn}`;
+
+        const statusEl = document.getElementById('result-status');
+        const iconEl = document.getElementById('result-icon');
+        const msgEl = document.getElementById('result-message');
+
+        if (student.status === "lulus") {
+          iconEl.innerHTML = '<i data-lucide="award" class="w-6 h-6 text-green-500"></i>';
+          statusEl.textContent = "LULUS";
+          statusEl.className = "inline-block px-6 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700 border border-green-200";
+          msgEl.textContent = "Selamat! Anda dinyatakan LULUS.";
+          spawnConfetti();
+        } else if (student.status === "verifikasi") {
+          iconEl.innerHTML = '<i data-lucide="clock" class="w-6 h-6 text-blue-500"></i>';
+          statusEl.textContent = "VERIFIKASI";
+          statusEl.className = "inline-block px-6 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-700 border border-blue-200";
+          msgEl.innerHTML = `<div class="text-left bg-blue-50 rounded-lg p-3 mt-2 text-xs">
+            <p class="font-semibold mb-1">Status sedang diverifikasi:</p>
+            <ul class="space-y-1 pl-3 text-xs">
+              <li>• Belum Menuntaskan Tugas</li>
+              <li>• Hubungi Wali Kelas</li>
+            </ul>
+            <p class="mt-2">Cek kembali besok</p>
+          </div>`;
+        } else {
+          iconEl.innerHTML = '<i data-lucide="x-circle" class="w-6 h-6 text-red-500"></i>';
+          statusEl.textContent = "TIDAK LULUS";
+          statusEl.className = "inline-block px-6 py-2 rounded-full text-sm font-bold bg-red-100 text-red-700 border border-red-200";
+          msgEl.textContent = "Tidak Mengikuti KBM dan Tidak mengikuti ujian, .";
+        }
+        lucide.createIcons();
+      }, 300);
+    }
+
+    function spawnConfetti() {
+      const container = document.getElementById('confetti-container');
+      container.innerHTML = '';
+      const colors = ['#10b981','#22c55e','#84cc16','#f59e0b','#ec4899','#8b5cf6','#06b6d4','#0284c7'];
+      for (let i = 0; i < 30; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.top = '80%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 0.3 + 's';
+        container.appendChild(piece);
+      }
+    }
+
+    document.getElementById('back-btn').addEventListener('click', function() {
+      resultCard.classList.add('fade-out');
+      setTimeout(() => {
+        resultCard.classList.add('hidden');
+        resultCard.classList.remove('fade-out', 'scale-in');
+        formCard.classList.remove('hidden');
+        formCard.classList.add('fade-up');
+        form.reset();
+      }, 300);
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
